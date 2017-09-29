@@ -159,8 +159,8 @@ static char * syscallnames[] = {
 #ifdef CS333_P1
 [SYS_date]    "date",
 #endif
-#endif
 };
+#endif
 
 void
 syscall(void)
