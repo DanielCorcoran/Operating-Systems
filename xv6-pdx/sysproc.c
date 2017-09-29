@@ -100,8 +100,7 @@ sys_date(void)
 
   if(argptr(0, (void*)&d, sizeof(struct rtcdate)) < 0)
     return -1;
-  else if(argptr(0, (void*)&d, sizeof(struct rtcdate)) == 0)
-    return 1;
-  else return 0;
+  cmostime(d);
+  return 0;
 }
 #endif
