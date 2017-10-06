@@ -537,8 +537,8 @@ procdump(void)
 void
 calcelapsedtime(int ticks_in)
 {
-  int seconds = ticks_in/1000;
-  int milliseconds = ticks_in%1000;
+  int seconds = (ticks + ticks_in)/1000;
+  int milliseconds = (ticks + ticks_in)%1000;
 
   if(milliseconds < 10)
     cprintf("%d.00%d\t", seconds, milliseconds);
