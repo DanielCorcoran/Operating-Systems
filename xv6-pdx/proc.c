@@ -6,6 +6,9 @@
 #include "x86.h"
 #include "proc.h"
 #include "spinlock.h"
+#ifdef CS333_P2
+#include "uproc.h"
+#endif
 
 struct {
   struct spinlock lock;
@@ -72,6 +75,10 @@ found:
   #ifdef CS333_P1
   p->start_ticks = ticks;
   #endif
+  #ifdef CS333_P2
+  p->cpu_ticks_total = 0;
+  p->cpu_ticks_in = 0;
+  #endif
 
   return p;
 }
@@ -101,7 +108,12 @@ userinit(void)
   safestrcpy(p->name, "initcode", sizeof(p->name));
   p->cwd = namei("/");
 
+  #ifdef CS333_P2
+  p->uid = DEFAULTUID;
+  p->gid = DEFAULTGID;
+  #endif
   p->state = RUNNABLE;
+
 }
 
 // Grow current process's memory by n bytes.
@@ -147,6 +159,10 @@ fork(void)
   np->sz = proc->sz;
   np->parent = proc;
   *np->tf = *proc->tf;
+  #ifdef CS333_P2
+  np->uid = proc->uid;
+  np->gid = proc->gid;
+  #endif
 
   // Clear %eax so that fork returns 0 in the child.
   np->tf->eax = 0;
@@ -306,6 +322,9 @@ scheduler(void)
       proc = p;
       switchuvm(p);
       p->state = RUNNING;
+      #ifdef CS333_P2
+      p->cpu_ticks_in = ticks;
+      #endif
       swtch(&cpu->scheduler, proc->context);
       switchkvm();
 
@@ -347,6 +366,9 @@ sched(void)
   if(readeflags()&FL_IF)
     panic("sched interruptible");
   intena = cpu->intena;
+  #ifdef CS333_P2
+  proc->cpu_ticks_total += ticks-proc->cpu_ticks_in;
+  #endif
   swtch(&proc->context, cpu->scheduler);
   cpu->intena = intena;
 }
@@ -546,5 +568,40 @@ calcelapsedtime(int ticks_in)
     cprintf("%d.0%d\t", seconds, milliseconds);
   else
     cprintf("%d.%d\t", seconds, milliseconds);
+}
+#endif
+
+// Copies active processes in the ptable to the uproc table passed in
+#ifdef CS333_P2
+int
+getprocs(uint max, struct uproc* table)
+{
+  int uproc_table_index = 0;
+
+  for(int i = 0; i < NPROC; i++){
+    if(ptable.proc[i].state == SLEEPING || ptable.proc[i].state == RUNNING ||
+        ptable.proc[i].state == RUNNABLE){
+      if(uproc_table_index < max){
+        table[uproc_table_index].pid = ptable.proc[i].pid;
+        table[uproc_table_index].uid = ptable.proc[i].uid;
+        table[uproc_table_index].gid = ptable.proc[i].gid;
+        table[uproc_table_index].elapsed_ticks =
+            ticks-ptable.proc[i].start_ticks;
+        table[uproc_table_index].CPU_total_ticks =
+            ptable.proc[i].cpu_ticks_total;
+        safestrcpy(table[uproc_table_index].state,
+            states[ptable.proc[i].state], STRMAX);
+        table[uproc_table_index].size = ptable.proc[i].sz;
+        safestrcpy(table[uproc_table_index].name, ptable.proc[i].name, STRMAX);
+
+        if(!ptable.proc[i].parent)
+          table[uproc_table_index].ppid = 1;
+        else
+          table[uproc_table_index].ppid = ptable.proc[i].parent->pid;
+        uproc_table_index++;
+      }
+    }
+  }
+  return uproc_table_index;
 }
 #endif

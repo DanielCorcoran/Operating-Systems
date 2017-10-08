@@ -8,6 +8,9 @@ struct rtcdate;
 struct spinlock;
 struct stat;
 struct superblock;
+#ifdef CS333_P2
+struct uproc;
+#endif
 
 // bio.c
 void            binit(void);
@@ -119,6 +122,9 @@ void            wakeup(void*);
 void            yield(void);
 #ifdef CS333_P1
 void            calcelapsedtime(int ticks_in);
+#endif
+#ifdef CS333_P2
+int             getprocs(uint, struct uproc*);
 #endif
 
 // swtch.S
