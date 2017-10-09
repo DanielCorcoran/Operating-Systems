@@ -2,15 +2,17 @@
 #include "types.h"
 #include "user.h"
 #include "uproc.h"
+
+#define UPROC_TABLE_MAX 64
+
 int
 main(void)
 {
-  int MAX = 64;
   int running_procs;
 
-  struct uproc* table = malloc(sizeof(struct uproc)*MAX);
+  struct uproc* table = malloc(sizeof(struct uproc)*UPROC_TABLE_MAX);
 
-  running_procs = getprocs(MAX, table);
+  running_procs = getprocs(UPROC_TABLE_MAX, table);
   if(running_procs == 0) {
     printf(2, "Error: ps call failed.  %s at line %d\n", __FILE__, __LINE__);
     exit();
@@ -37,10 +39,10 @@ calcelapsedtime(int ticks_in)
   int milliseconds = (ticks_in)%1000;
 
   if(milliseconds < 10)
-    printf(2, "%d.00%d\t", seconds, milliseconds);
+    printf(1, "%d.00%d\t", seconds, milliseconds);
   else if(milliseconds < 100)
-    printf(2, "%d.0%d\t", seconds, milliseconds);
+    printf(1, "%d.0%d\t", seconds, milliseconds);
   else
-    printf(2, "%d.%d\t", seconds, milliseconds);
+    printf(1, "%d.%d\t", seconds, milliseconds);
 }
 #endif

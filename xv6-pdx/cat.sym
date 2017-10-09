@@ -16,7 +16,7 @@
 00000000 printf.c
 0000048b putc
 000004ae printint
-00000bb4 digits.1111
+00000bb4 digits.1127
 00000000 umalloc.c
 00000be0 base
 00000be8 freep
