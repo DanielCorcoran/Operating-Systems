@@ -527,9 +527,11 @@ procdump(void)
   struct proc *p;
   char *state;
   uint pc[10];
- 
-  #ifdef CS333_P1
-  cprintf("PID\tState\tName\tElapsed\t PCs\n");
+  
+  #ifdef CS333_P2
+  cprintf("\nPID\tName\tUID\tGID\tPPID\tElapsed\tCPU\tState\tSize\t PCs\n");
+  #elif defined CS333_P1
+  cprintf("\nPID\tState\tName\tElapsed\t PCs\n");
   #endif
   for(p = ptable.proc; p < &ptable.proc[NPROC]; p++){
     if(p->state == UNUSED)
@@ -538,9 +540,21 @@ procdump(void)
       state = states[p->state];
     else
       state = "???";
-    #ifdef CS333_P1
+    #ifdef CS333_P2
+    int ppid;
+
+    if(!p->parent)
+      ppid = 1;
+    else
+      ppid = p->parent->pid;
+
+    cprintf("%d\t%s\t%d\t%d\t%d\t", p->pid, p->name, p->uid, p->gid, ppid);
+    calcelapsedtime(ticks-p->start_ticks);
+    calcelapsedtime(p->cpu_ticks_total);
+    cprintf("%s\t%d\t", state, p->sz);
+    #elif defined CS333_P1
     cprintf("%d\t%s\t%s\t", p->pid, state, p->name);
-    calcelapsedtime(p->start_ticks);
+    calcelapsedtime(ticks-p->start_ticks);
     #else
     cprintf("%d %s %s", p->pid, state, p->name);
     #endif
@@ -559,8 +573,8 @@ procdump(void)
 void
 calcelapsedtime(int ticks_in)
 {
-  int seconds = (ticks + ticks_in)/1000;
-  int milliseconds = (ticks + ticks_in)%1000;
+  int seconds = (ticks_in)/1000;
+  int milliseconds = (ticks_in)%1000;
 
   if(milliseconds < 10)
     cprintf("%d.00%d\t", seconds, milliseconds);
