@@ -27,6 +27,7 @@ main(void)
     printf(1, "%s\t%d\n", table[i].state, table[i].size);
   }
 
+  free(table);
   exit();
 }
 

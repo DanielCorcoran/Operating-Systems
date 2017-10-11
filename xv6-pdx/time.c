@@ -4,12 +4,16 @@
 int
 main(int argc, char* argv[])
 {
-  int start_ticks = uptime();
+  int start_ticks;
   int total_ticks;
   int pid = fork();
 
+  start_ticks = uptime();
+
   if(pid == 0){
     exec(argv[1],argv+1);
+    if(argv[1])
+      printf(2, "exec of %s failed\n", argv[1]);
     exit();
   }
   wait();

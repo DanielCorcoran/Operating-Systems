@@ -1703,65 +1703,6 @@ rand()
   return randstate;
 }
 
-#ifdef CS333_P2
-void
-testuidgid(void)
-{
-  uint uid, gid, ppid;
-
-  uid = getuid();
-  printf(2, "Current UID is: %d\n", uid);
-  printf(2, "Setting UID to 100\n");
-  if(setuid(100) == -1) {
-    printf(2, "Setting UID failed");
-    exit();
-  }
-  uid = getuid();
-  printf(2, "Current UID is: %d\n", uid);
-  printf(2, "Setting UID to 100000\n");
-  if(setuid(100000) == 0) {
-    printf(2, "Setting UID succeeded. Set should fail.");
-    exit();
-  }
-  else
-    printf(2, "Not allowed to set UID to 100000. PASSED.");
-  printf(2, "Setting UID to -1\n");
-  if(setuid(-1) == 0) {
-    printf(2, "Setting UID succeeded.  Set should fail.");
-    exit();
-  }
-  else
-    printf(2, "Not allowed to set UID to -1. PASSED.");
-
-  gid = getgid();
-  printf(2, "Current GID is: %d\n", gid);
-  printf(2, "Setting GID to 100\n");
-  if(setgid(100) == -1) {
-    printf(2, "Setting GID failed");
-    exit();
-  }
-  gid = getgid();
-  printf(2, "Current GID is: %d\n", gid);
-  printf(2, "Setting GID to 100000\n");
-  if(setgid(100000) == 0) {
-    printf(2, "Setting GID succeeded. Set should fail.");
-    exit();
-  }
-  else
-    printf(2, "Not allowed to set GID to 100000. PASSED.");
-  printf(2, "Setting GID to -1\n");
-  if(setgid(-1) == 0) {
-    printf(2, "Setting GID succeeded.  Set should fail.");
-    exit();
-  }
-  else
-    printf(2, "Not allowed to set GID to -1. PASSED.");
-  
-  ppid = getppid();
-  printf(2, "My parent process is: %d\n", ppid);
-  printf(2, "Done!\n");
-}
-#endif
 
 int
 main(int argc, char *argv[])
@@ -1812,10 +1753,6 @@ main(int argc, char *argv[])
   forktest();
   bigdir(); // slow
   exectest();
-
-  #ifdef CS333_P2
-  testuidgid();
-  #endif
 
   exit();
 }
