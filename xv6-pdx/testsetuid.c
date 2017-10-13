@@ -57,7 +57,8 @@ main(int argc, char *argv[])
     printf(1, "Not allowed to set GID to -1. PASSED.\n");
   
   ppid = getppid();
-  printf(1, "My parent process is: %d\n", ppid);
+  printf(1, "My process ID is: %d\n", getpid());
+  printf(1, "My parent process ID is: %d\n", ppid);
   printf(1, "Done!\n");
 
   exit();

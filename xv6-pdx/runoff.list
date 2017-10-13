@@ -90,6 +90,5 @@ p5-test.h
 testsetuid.c
 
 # additional student programs
-testsetuid.c
 uproc.h
 testgetprocs.c
