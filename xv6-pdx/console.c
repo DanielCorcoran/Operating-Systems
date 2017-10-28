@@ -187,7 +187,7 @@ struct {
 void
 consoleintr(int (*getc)(void))
 {
-  int c, doprocdump = 0;
+  int c, doprocdump = 0, doctrlr = 0, doctrlf = 0, doctrls = 0, doctrlz = 0;
 
   acquire(&cons.lock);
   while((c = getc()) >= 0){
@@ -195,6 +195,20 @@ consoleintr(int (*getc)(void))
     case C('P'):  // Process listing.
       doprocdump = 1;   // procdump() locks cons.lock indirectly; invoke later
       break;
+    #ifdef CS333_P3P4
+    case C('R'):
+      doctrlr = 1;
+      break;
+    case C('F'):
+      doctrlf = 1;
+      break;
+    case C('S'):
+      doctrls = 1;
+      break;
+    case C('Z'):
+      doctrlz = 1;
+      break;
+    #endif
     case C('U'):  // Kill line.
       while(input.e != input.w &&
             input.buf[(input.e-1) % INPUT_BUF] != '\n'){
@@ -224,6 +238,18 @@ consoleintr(int (*getc)(void))
   release(&cons.lock);
   if(doprocdump) {
     procdump();  // now call procdump() wo. cons.lock held
+  }
+  if(doctrlr) {
+    printReadyList();
+  }
+  if(doctrlf) {
+    printFree();
+  }
+  if(doctrls) {
+    printSleepList();
+  }
+  if(doctrlz) {
+    printZombieList();
   }
 }
 

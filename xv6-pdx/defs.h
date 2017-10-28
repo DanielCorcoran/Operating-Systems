@@ -126,6 +126,24 @@ void            calcelapsedtime(int ticks_in);
 #ifdef CS333_P2
 int             getprocs(uint, struct uproc*);
 #endif
+#ifdef CS333_P3P4
+void            addToListFront(struct proc**, struct proc*);
+void            addToListRear(struct proc**, struct proc*);
+void            removeFromStateList(struct proc**, struct proc*);
+struct proc*    removeFromQueue(struct proc**);
+void            assertState(struct proc*, int);
+void            switchStates(struct proc**, struct proc**, struct proc*,
+                    int, int);
+void            switchToRunnable(struct proc**, struct proc*, int);
+void            passChildrenToInit(struct proc**, struct proc*);
+struct proc*    findChildren(struct proc**, struct proc*);
+struct          proc* findPid(struct proc**, int);
+void            printReadyList(void);
+void            printFree(void);
+void            printSleepList(void);
+void            printZombieList(void);
+void            printProcesses(struct proc* sList);
+#endif
 
 // swtch.S
 void            swtch(struct context**, struct context*);
