@@ -1007,40 +1007,54 @@ findPid(struct proc** sList, int pid)
   return 0;
 }
 
+// Prints all processes in the ready list by their PID
 void
 printReadyList(void)
 {
   cprintf("Ready List Processes:\n");
+
+  acquire(&ptable.lock);
   printProcesses(ptable.pLists.ready);
+  release(&ptable.lock);
   return;
 }
 
+// Prints the number of unused processes
 void
 printFree(void)
 {
   int count = 0;
+
+  acquire(&ptable.lock);
   struct proc *current = ptable.pLists.free;
 
   while(current){
     current = current->next;
     count++;
   }
+  release(&ptable.lock);
 
   cprintf("Free List Size: %d processes\n", count);
 }
 
+// Prints all processes in the sleep list by their PID
 void
 printSleepList(void)
 {
   cprintf("Sleep List Processes:\n");
+  acquire(&ptable.lock);
   printProcesses(ptable.pLists.sleep);
+  release(&ptable.lock);
   return;
 }
 
+// Prints all processes by their PID and their parent PID
 void
 printZombieList(void)
 {
   int ppid;
+
+  acquire(&ptable.lock);
   struct proc *current = ptable.pLists.zombie;
 
   cprintf("Zombie List Processes:\n");
@@ -1059,11 +1073,13 @@ printZombieList(void)
     if(current)
       cprintf("->");
   }
+  release(&ptable.lock);
   cprintf("\n");
   return;
 
 }
 
+// Traverses the list passed in and prints corresponding processes by PID
 void
 printProcesses(struct proc* sList)
 {

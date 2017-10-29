@@ -92,3 +92,4 @@ testsetuid.c
 # additional student programs
 uproc.h
 testgetprocs.c
+testlists.c

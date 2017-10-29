@@ -187,7 +187,10 @@ struct {
 void
 consoleintr(int (*getc)(void))
 {
-  int c, doprocdump = 0, doctrlr = 0, doctrlf = 0, doctrls = 0, doctrlz = 0;
+  int c, doprocdump = 0;
+  #ifdef CS333_P3P4
+  int doctrlr = 0, doctrlf = 0, doctrls = 0, doctrlz = 0;
+  #endif
 
   acquire(&cons.lock);
   while((c = getc()) >= 0){
@@ -239,6 +242,7 @@ consoleintr(int (*getc)(void))
   if(doprocdump) {
     procdump();  // now call procdump() wo. cons.lock held
   }
+  #ifdef CS333_P3P4
   if(doctrlr) {
     printReadyList();
   }
@@ -251,6 +255,7 @@ consoleintr(int (*getc)(void))
   if(doctrlz) {
     printZombieList();
   }
+  #endif
 }
 
 int
