@@ -227,6 +227,11 @@ ialloc(ushort type)
   struct dinode din;
 
   bzero(&din, sizeof(din));
+  #ifdef CS333_P5
+  din.uid = xshort(DEFAULTUID);
+  din.gid = xshort(DEFAULTGID);
+  din.mode.asInt = xint(DEFAULTMODE);
+  #endif
   din.type = xshort(type);
   din.nlink = xshort(1);
   din.size = xint(0);

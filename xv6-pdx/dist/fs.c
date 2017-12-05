@@ -184,6 +184,11 @@ ialloc(uint dev, short type)
     dip = (struct dinode*)bp->data + inum%IPB;
     if(dip->type == 0){  // a free inode
       memset(dip, 0, sizeof(*dip));
+      #ifdef CS333_P5
+      dip->uid = DEFAULTUID;
+      dip->gid = DEFAULTGID;
+      dip->mode.asInt = DEFAULTMODE;
+      #endif
       dip->type = type;
       log_write(bp);   // mark it allocated on the disk
       brelse(bp);
@@ -203,6 +208,11 @@ iupdate(struct inode *ip)
 
   bp = bread(ip->dev, IBLOCK(ip->inum, sb));
   dip = (struct dinode*)bp->data + ip->inum%IPB;
+  #ifdef CS333_P5
+  dip->uid = ip->uid;
+  dip->gid = ip->gid;
+  dip->mode.asInt = ip->mode.asInt;
+  #endif
   dip->type = ip->type;
   dip->major = ip->major;
   dip->minor = ip->minor;
@@ -280,6 +290,11 @@ ilock(struct inode *ip)
   if(!(ip->flags & I_VALID)){
     bp = bread(ip->dev, IBLOCK(ip->inum, sb));
     dip = (struct dinode*)bp->data + ip->inum%IPB;
+    #ifdef CS333_P5
+    ip->uid = dip->uid;
+    ip->gid = dip->gid;
+    ip->mode.asInt = dip->mode.asInt;
+    #endif
     ip->type = dip->type;
     ip->major = dip->major;
     ip->minor = dip->minor;
@@ -420,6 +435,11 @@ itrunc(struct inode *ip)
 void
 stati(struct inode *ip, struct stat *st)
 {
+  #ifdef CS333_P5
+  st->uid = ip->uid;
+  st->gid = ip->gid;
+  st->mode.asInt = ip->mode.asInt;
+  #endif
   st->dev = ip->dev;
   st->ino = ip->inum;
   st->type = ip->type;
@@ -643,3 +663,83 @@ nameiparent(char *path, char *name)
 {
   return namex(path, 1, name);
 }
+
+#ifdef CS333_P5
+// Sets the mode bits (permissions) for a file or directory
+int
+chmod(char *pathname, int mode)
+{
+  struct inode *ip;
+
+  begin_op();
+  ip = namei (pathname);
+  if(ip == 0){
+    end_op();
+    return -1;
+  }
+  if(mode < 0 || mode > 1023){
+    end_op();
+    return -1;
+  }
+
+  ilock(ip);
+  ip -> mode.asInt = mode;
+  iupdate(ip);
+  iunlock(ip);
+  end_op();
+
+  return 0;
+}
+
+// Sets the owner (UID) for a file or directory
+int
+chown(char *pathname, int owner)
+{
+  struct inode *ip;
+
+  begin_op();
+  ip = namei (pathname);
+  if(ip == 0){
+    end_op();
+    return -1;
+  }
+  if(owner < 0 || owner > 32767){
+    end_op();
+    return -1;
+  }
+
+  ilock(ip);
+  ip -> uid = owner;
+  iupdate(ip);
+  iunlock(ip);
+  end_op();
+
+  return 0;
+}
+
+// Sets the group (GID) for a file or directory
+int
+chgrp(char *pathname, int group)
+{
+  struct inode *ip;
+
+  begin_op();
+  ip = namei (pathname);
+  if(ip == 0){
+    end_op();
+    return -1;
+  }
+  if(group < 0 || group > 32767){
+    end_op();
+    return -1;
+  }
+
+  ilock(ip);
+  ip -> gid = group;
+  iupdate(ip);
+  iunlock(ip);
+  end_op();
+
+  return 0;
+}
+#endif

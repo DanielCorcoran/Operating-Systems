@@ -439,3 +439,47 @@ sys_pipe(void)
   fd[1] = fd1;
   return 0;
 }
+
+#ifdef CS333_P5
+int
+sys_chmod(void)
+{
+  char *n;
+  int m;
+
+  if(argstr(0, &n) < 0)
+    return -1;
+  if(argint(1, &m) < 0)
+    return -1;
+
+  return chmod(n, m);
+}
+
+int
+sys_chown(void)
+{
+  char *n;
+  int m;
+
+  if(argstr(0, &n) < 0)
+    return -1;
+  if(argint(1, &m) < 0)
+    return -1;
+
+  return chown(n, m);
+}
+
+int
+sys_chgrp(void)
+{
+  char *n;
+  int m;
+
+  if(argstr(0, &n) < 0)
+    return -1;
+  if(argint(1, &m) < 0)
+    return -1;
+
+  return chgrp(n, m);
+}
+#endif
